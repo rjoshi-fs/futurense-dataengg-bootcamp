@@ -1,0 +1,41 @@
+delimiter $$
+  create procedure pro_asci()
+  begin
+ declare v1 int;
+ declare v2 varchar(20);
+ set v1=97;
+ while v1<=122   do
+ set v2=(char(v1));
+ set v1=v1+1;
+ select v2;
+ end while;
+ end $$
+
+
+
+with recursive cte_6
+as 
+(select ascii('a') t1
+union all 
+select t1+1 from cte_6 where cte_6.t1<=ascii('z'))
+select * from cte_6;
+
+
+set @v1='2023-01-01';
+with recursive cte_7
+as
+(select @v1 'dat'
+union all
+ select date_add(dat, interval '1' day) from cte_7 where cte_7.dat<='2023-01-31')
+ select dat,dayname(dat) from cte_7;
+
+
+
+
+set @v2='2000-05-15';
+with recursive cte_7
+as
+(select @v2 'dat'
+union all
+ select date_add(dat, interval '1' year) from cte_7 where cte_7.dat<='2023-05-15')
+ select dat,dayname(dat) from cte_7;

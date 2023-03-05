@@ -1,0 +1,138 @@
+Assignment #2
+	Bank Marketing Campaign Data Analysis with DataFrame API
+	a) Load Bank Marketing Dataset and create DataFrame		
+	b) Give marketing success rate. (No. of people subscribed / total no. of entries)
+	c) Give marketing failure rate
+	d) Maximum, Mean, and Minimum age of the average targeted customer
+	e) Check the quality of customers by checking the average balance, median balance of customers
+	f) Check if age matters in marketing subscription for deposit
+	g) Show AgeGroup [Teenagers, Youngsters, MiddleAgers, Seniors] wise Subscription Count.
+	g) Check if marital status mattered for subscription to deposit.
+	h) Check if age and marital status together mattered for subscription to deposit scheme
+
+
+
+1)-
+>>> df=spark.read.options(delimiter=";",header=True, inferSchema=True).csv("/home/tech/futurense_hadoop-pyspark/labs/dataset/bankmark
+et/bankmarketdata.csv")
+
+df.registerTempTable("bankmarketing")
+
+2)-
+>>> spark.sql('select (a.cnt/b.cnt)*100 from (select count(*) cnt from bankmarketing where y=="yes") a,(select count(*) cnt from bank
+marketing) b  ').show()
++-------------------+
+|((cnt / cnt) * 100)|
++-------------------+
+| 11.698480458295547|
++-------------------+
+
+>>> spark.sql("select (sum(if(y='yes',1,0))/count(*))*100 from bankmarketing").show()
++-----------------------------------------------+
+|((sum((IF((y = yes), 1, 0))) / count(1)) * 100)|
++-----------------------------------------------+
+|                             11.698480458295547|
++-----------------------------------------------+
+
+3)-
+>>> spark.sql("select (sum(if(y='no',1,0))/count(*))*100 from bankmarketing").show()
++----------------------------------------------+
+|((sum((IF((y = no), 1, 0))) / count(1)) * 100)|
++----------------------------------------------+
+|                             88.30151954170445|
++----------------------------------------------+
+
+4)-
+>>> spark.sql("select max(age),min(age),avg(age) from bankmarketing").show()
++--------+--------+-----------------+
+|max(age)|min(age)|         avg(age)|
++--------+--------+-----------------+
+|      95|      18|40.93621021432837|
++--------+--------+-----------------+
+
+5)-
+>>> spark.sql("select avg(balance),percentile_approx(balance,0.5) as medium_balance from bankmarketing").show()
++------------------+--------------+
+|      avg(balance)|medium_balance|
++------------------+--------------+
+|1362.2720576850766|           448|
++------------------+--------------+
+
+6)-
+>>> spark.sql('select age,count(*) cnt from bankmarketing where y="yes" group by age order by cnt desc ').show()
++---+---+
+|age|cnt|
++---+---+
+| 32|221|
+| 30|217|
+| 33|210|
+| 35|209|
+| 31|206|
+| 34|198|
+| 36|195|
+| 29|171|
+| 37|170|
+| 28|162|
+| 38|144|
+| 39|143|
+| 27|141|
+| 26|134|
+| 41|120|
+| 46|118|
+| 40|116|
+| 47|113|
+| 25|113|
+| 42|111|
++---+---+
+only showing top 20 rows
+
+7)-
+>>> spark.sql("select (case when age<13 then 'Kids' when age<20 then 'Teenagers' when age<31 then 'Youngsters' when age<50 then 'Middleagers 'else 'Seniors' end) as ag,count(*) sub_cnt from bankmarketing where y='yes' group by ag order by sub_cnt desc ").show()
++------------+-------+
+|          ag|sub_cnt|
++------------+-------+
+|Middleagers |   2759|
+|     Seniors|   1385|
+|  Youngsters|   1127|
+|   Teenagers|     18|
++------------+-------+
+
+8)-
+>>> spark.sql("select marital, count(*) as number from bankmarketing where y='yes' group by marital order by number desc").show()
++--------+------+
+| marital|number|
++--------+------+
+| married|  2755|
+|  single|  1912|
+|divorced|   622|
++--------+------+
+
+9)-
+>>> spark.sql("select age, marital, count(*) as number from bankmarketing where y='yes' group by age,marital order by number desc").show()
++---+-------+------+
+|age|marital|number|
++---+-------+------+
+| 30| single|   151|
+| 28| single|   138|
+| 29| single|   133|
+| 32| single|   124|
+| 26| single|   121|
+| 34|married|   118|
+| 31| single|   111|
+| 27| single|   110|
+| 35|married|   101|
+| 36|married|   100|
+| 25| single|    99|
+| 37|married|    98|
+| 33| single|    97|
+| 33|married|    97|
+| 32|married|    87|
+| 39|married|    87|
+| 38|married|    86|
+| 35| single|    84|
+| 47|married|    83|
+| 46|married|    80|
++---+-------+------+
+only showing top 20 rows
+
+

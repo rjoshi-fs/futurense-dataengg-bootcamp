@@ -10,7 +10,7 @@
 >>> rdd4.min()
 -7.9
 
-rdd5=rdd1.map(lambda x: (x[1][5:7],float(x[6])))
+rdd5=rdd2.map(lambda x: (x[1][5:7],float(x[6])))
 rdd5a = rdd5.groupByKey()
 min_rdd = rdd5a.mapValues(lambda values: min(values))
 min_rdd.collect()
@@ -24,7 +24,7 @@ min_rdd.collect()
  ('04', 8.0)]
 
 
-rdd6=rdd1.map(lambda x: (x[1][5:7],float(x[5])))
+rdd6=rdd2.map(lambda x: (x[1][5:7],float(x[5])))
 rdd6a = rdd6.groupByKey()
 max_rdd = rdd6a.mapValues(lambda values: max(values))
 max_rdd.collect()
